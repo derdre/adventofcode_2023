@@ -1,9 +1,9 @@
-import qualified System.IO as IO
 import qualified Data.Char as Char
-import qualified Data.Map as Map
-import Data.List
-import Data.Maybe
 import Data.Function
+import Data.List
+import qualified Data.Map as Map
+import Data.Maybe
+import qualified System.IO as IO
 import Text.Regex.TDFA
 
 splitFile :: String -> [String]
@@ -11,7 +11,7 @@ splitFile [] = []
 splitFile xs = lines xs
 
 getLeftDigit :: Int -> String -> (Int, Char)
-getLeftDigit pos (x:xs)
+getLeftDigit pos (x : xs)
     | Char.isDigit x = (pos, x)
     | otherwise = getLeftDigit (pos + 1) xs
 
@@ -20,43 +20,46 @@ getFromDigits xs =
     let getLeftDigit0 = getLeftDigit 0
         (_, leftDigit) = getLeftDigit0 xs
         (_, rightDigit) = getLeftDigit0 $ reverse xs
-    in (leftDigit, rightDigit)
+     in (leftDigit, rightDigit)
 
 getFromDigitsPos :: String -> ((Int, Char), (Int, Char))
 getFromDigitsPos xs =
     let getLeftDigit0 = getLeftDigit 0
         (idxLeft, leftDigit) = getLeftDigit0 xs
         (idxRight, rightDigit) = getLeftDigit0 $ reverse xs
-    in ((idxLeft, leftDigit), (length xs - idxRight - 1, rightDigit))
+     in ((idxLeft, leftDigit), (length xs - idxRight - 1, rightDigit))
 
 getMatches :: String -> String -> [(Int, Char)]
 getMatches xs w =
     let matches = getAllMatches (xs =~ w) :: [(Int, Int)]
-        numberMapping = Map.fromList [("one", '1'),
-                                      ("two", '2'),
-                                      ("three", '3'),
-                                      ("four", '4'),
-                                      ("five", '5'),
-                                      ("six", '6'),
-                                      ("seven", '7'),
-                                      ("eight", '8'),
-                                      ("nine", '9')]
+        numberMapping =
+            Map.fromList
+                [ ("one", '1')
+                , ("two", '2')
+                , ("three", '3')
+                , ("four", '4')
+                , ("five", '5')
+                , ("six", '6')
+                , ("seven", '7')
+                , ("eight", '8')
+                , ("nine", '9')
+                ]
         number = fromJust (Map.lookup w numberMapping)
-    in case matches of
-        [] -> []
-        ys -> [(p, number) | (p, _) <- matches]
+     in case matches of
+            [] -> []
+            ys -> [(p, number) | (p, _) <- matches]
 
 getMatchesAll :: [String] -> String -> [(Int, Char)]
-getMatchesAll words xs = 
+getMatchesAll words xs =
     let allMatches = map (getMatches xs) words
-    in concat allMatches
+     in concat allMatches
 
 getExtremeMatches :: [(Int, Char)] -> [(Int, Char)]
 getExtremeMatches [] = []
 getExtremeMatches xs =
     let leftMatch = head $ sortBy (compare `on` fst) xs
         rightMatch = last $ sortBy (compare `on` fst) xs
-    in [leftMatch, rightMatch]
+     in [leftMatch, rightMatch]
 
 compareDigitMatches :: (((Int, Char), (Int, Char)), [(Int, Char)]) -> (Char, Char)
 compareDigitMatches (((dpl, dcl), (dpr, dcr)), []) = (dcl, dcr)
